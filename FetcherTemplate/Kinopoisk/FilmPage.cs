@@ -13,10 +13,8 @@ namespace FetcherTemplate.Kinopoisk
     {
         protected readonly uint FilmId = 0;
         
-        public FilmPage(string sFilmId)
-        {
-            FilmId = uint.Parse(sFilmId);
-        }
+        public FilmPage(string sFilmId) { FilmId = uint.Parse(sFilmId); }
+        public FilmPage(uint filmId) { FilmId = filmId; }
 
         protected string PageAddress
         {
@@ -26,6 +24,15 @@ namespace FetcherTemplate.Kinopoisk
             }
         }
 
+
+        protected string DocumentContent = null;
+
+        public string Load()
+        {
+            return DocumentContent ?? (DocumentContent = Utils.PageFetch(PageAddress));
+        }
+
+
         private HtmlAgilityPack.HtmlDocument _document = null;
         protected HtmlAgilityPack.HtmlNode Document
         {
@@ -33,9 +40,8 @@ namespace FetcherTemplate.Kinopoisk
             {
                 if (_document == null)
                 {
-                    string sMoviePageContents = Utils.PageFetch(PageAddress);
                     _document = new HtmlAgilityPack.HtmlDocument();
-                    _document.LoadHtml(sMoviePageContents);
+                    _document.LoadHtml(Load());
                 }
                 return _document.DocumentNode;
             }
@@ -50,7 +56,6 @@ namespace FetcherTemplate.Kinopoisk
                 {
                     _properties = new Dictionary<string, HtmlNode>();
                     var rows = Document.QuerySelectorAll("body div.movie table.info tr");
-                    string value = null;
                     foreach (HtmlAgilityPack.HtmlNode row in rows)
                     {
                         _properties.Add(row.Elements().First().InnerText, row.Elements().Last());
@@ -148,13 +153,24 @@ namespace FetcherTemplate.Kinopoisk
             }
         }
 
-        public ushort Year
+        public int Year
         {
             get
             {
                 return Properties.ContainsKey("год")
-                           ? ushort.Parse(Properties["год"].QuerySelector("a").InnerText)
-                           : (ushort) 0;
+                           ? int.Parse(Properties["год"].QuerySelector("a").InnerText)
+                           : 0;
+            }
+        }
+
+        public string LocalTitle
+        {
+            get
+            {
+                var local = Document.QuerySelector("span[itemprop=\"alternativeHeadline\"]");
+                return ExtTrim(local != null
+                        ? local.InnerText
+                        : Document.QuerySelector("h1[itemprop=\"name\"]").InnerText);
             }
         }
 
@@ -163,46 +179,37 @@ namespace FetcherTemplate.Kinopoisk
             get { return ExtTrim(Document.QuerySelector("h1[itemprop=\"name\"]").InnerText); }
         }
 
-
+#region Backdrops
         private BackdropsList _backdrops = null;
-        public string Backdrop
-        {
-            get
-            {
-                if (_backdrops == null) _backdrops = new BackdropsList(FilmId.ToString());
-                return _backdrops.GetBackdropImageLink();
-            }
-        }
 
+        protected BackdropsList BackdropsProvider
+        {
+            get { return _backdrops ?? (_backdrops = new BackdropsList(FilmId.ToString())); }
+        }
+        public string GetOnlyBackdrop() { return BackdropsProvider.GetBackdropImageLink(); }
+        public List<string> GetBackdrops() { return BackdropsProvider.GetAllBackdropsLinks(); }
+#endregion
+        
+
+#region Posters
         private PostersList _posters = null;
-        public string Poster
-        {
-            get
-            {
-                if (_posters == null) _posters = new PostersList(FilmId.ToString());
-                return _posters.GetPosterImageLink();
-            }
-        }
 
-        public List<Person> Crew
+        protected PostersList PostersProvider
         {
-            get
-            {
-                var crew = new List<Person>();
-                var requireTypes = new string[] { "режиссер", "сценарий", "продюсер", "оператор", "композитор", "художник", "монтаж" };
-                foreach (string type in requireTypes)
-                {
-                    if (Properties.ContainsKey(type))
-                    {
-                        var persons = Properties[type].QuerySelectorAll("a");
-                        foreach (var person in persons)
-                        {
-                            if (person.InnerText != "...")
-                                crew.Add(new Person(person.Attributes["href"].Value, person.InnerText, type));
-                        }
-                    }
-                }
-            }
+            get { return _posters ?? (_posters = new PostersList(FilmId.ToString())); }
+        }
+        public string GetOnlyPoster() { return PostersProvider.GetPosterImageLink(); }
+        public List<string> GetPosters() { return PostersProvider.GetAllPostersImageLinks(); }
+#endregion
+        
+
+
+        protected Crew FilmCrew = null;
+
+        public List<Person> GetCrew()
+        {
+            if (FilmCrew == null) FilmCrew = new Crew(FilmId.ToString());
+            return FilmCrew.GetCrew();
         }
 
     }

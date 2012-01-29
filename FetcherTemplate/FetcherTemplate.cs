@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Reflection;
 using Fizzler.Systems.HtmlAgilityPack;
@@ -8,10 +9,10 @@ using MCM_Common;
 #region Assembly versioning information
     // Fill in the following information about your plugin
     // (make sure you keep references to Media Center Master where appropriate)
-    [assembly: AssemblyTitle("tMDB plugin, Media Center Master")]
-    [assembly: AssemblyDescription("The Open Movie Database meta data fetcher for Media Center Master.")]
-    [assembly: AssemblyCompany("Your Name")]
-    [assembly: AssemblyCopyright("Copyright © YEAR Your Name")]
+    [assembly: AssemblyTitle("Kinopoisk plugin, Media Center Master")]
+    [assembly: AssemblyDescription("The Kinopoisk Database meta data fetcher for Media Center Master.")]
+    [assembly: AssemblyCompany("Andrey Grebennikov")]
+    [assembly: AssemblyCopyright("Copyright © 2012 Andrey Grebennikov")]
     [assembly: AssemblyVersion("1.0.0.0")]
     [assembly: AssemblyFileVersion("1.0.0.0")]
 #endregion
@@ -23,10 +24,7 @@ namespace FetcherTemplate
         #region Custom data specific to this plugin
 
         // Try to match the color scheme used at the website source for your data
-        private const string Tag = "<color=#87A418><backcolor=#1A1A1A><b>themoviedb.org:</b></backcolor></color>  ";
-
-        // For details on acquiring an API key, please visit http://api.themoviedb.org/2.0/docs/
-        private const string API_Key = "THEMOVIEDB.ORG API KEY";
+        private const string Tag = "<color=#87A418><backcolor=#1A1A1A><b>kinopoisk.ru:</b></backcolor></color>  ";
 
         #endregion
 
@@ -47,14 +45,15 @@ namespace FetcherTemplate
 
             
             // Fill in the following information about your plugin
-            vitals.Author = "Your Name";
-            vitals.Name = "The Open Movie Database meta data fetcher for Media Center Master.";
+            vitals.Author = "Andre Grebennikov";
+            vitals.Name = "The Kinopoisk Database meta data fetcher for Media Center Master.";
             vitals.Version = "1.00";
-            vitals.Source = "themoviedb.org";
+            vitals.Source = "kinopoisk.ru";
+            vitals.LanguageCode = "ru/Russian";
 
 
             // Respect the user's date formatting by reparsing the date
-            vitals.ReleaseDate = DateTime.Parse("2010/02/10").ToShortDateString();
+            vitals.ReleaseDate = DateTime.Parse("2012/01/28").ToShortDateString();
 
 
             // Make sure you register your plugin as one of the available types so that future
@@ -91,68 +90,10 @@ namespace FetcherTemplate
         ///     meta data fetches (all)
         /// </summary>
         /// <returns>A list of serialized MCM_Common.MovieResult objects</returns>
-        public static List<string> SearchByTitleAndYear(string sTitle, string sYear)
+        public static List<string> SearchByTitleAndYear(string title, string year)
         {
-            var lstMovies = new List<string>();
-
-            try
-            {
-                sTitle = Utils.FixTitleForSearching(sTitle); // fix wrnog symbols
-                var pattern = new Regex(@"\s+");
-                sTitle = string.Join("+", pattern.Split(sTitle));
-                if (string.IsNullOrEmpty(sYear)) sTitle += "+" + sYear;
-                string sContents = Utils.PageFetch("http://www.kinopoisk.ru/level/7/type/film/list/1/find/" + System.Uri.EscapeUriString(sTitle));
-
-                if (sContents == "[timeout]")
-                {
-                    Utils.Logger(Tag + "<color=#B00000><u><b>it appears that themoviedb.org is offline</b></u></color>");
-                    return lstMovies;
-                }
-
-                if (sContents.StartsWith("[exception: "))
-                {
-                    Utils.Logger(Tag + "<color=#B00000><u><b>themoviedb.org is online, but experiencing technical difficulties</b></u></color>");
-                    return lstMovies;
-                }
-
-                var html = new HtmlAgilityPack.HtmlDocument();
-                html.LoadHtml(sContents);
-
-                HtmlAgilityPack.HtmlNode document = html.DocumentNode;
-                IEnumerable<HtmlAgilityPack.HtmlNode> films = document.QuerySelectorAll("body div.search_results p.name");
-
-                Regex idPattern = new Regex(@"\/film\/(\d+)\/");
-                
-
-                foreach (HtmlAgilityPack.HtmlNode filmHeader in films)
-                {
-                    string confirm_movie_Title = filmHeader.QuerySelector("a").InnerText;
-                    string confirm_movie_Year = filmHeader.QuerySelector("span.year").InnerText;
-
-                    string confirm_movie_IDs = null;
-                    var matches = idPattern.Match(filmHeader.QuerySelector("a").Attributes["href"].Value);
-                    if (matches.Groups.Count == 2)
-                    {
-                        confirm_movie_IDs = matches.Groups[1].Value;
-                    }
-
-
-                    if (confirm_movie_Year == sYear && !string.IsNullOrEmpty(confirm_movie_IDs))
-                    {
-                        Utils.Logger(Tag + "Found #" + confirm_movie_IDs + ", \"" + confirm_movie_Title + "\" (" + confirm_movie_Year + ")");
-                        lstMovies.Add(Utils.SerializeObject(new MovieResult() { ID = confirm_movie_IDs, Title = confirm_movie_Title, Year = confirm_movie_Year }));
-                    }
-                }
-            }
-            catch { }
-
-            if (lstMovies.Count == 0)
-            {
-                Utils.Logger(Tag + "<color=#B00000><u>no results (by title)</u></color>");
-                return lstMovies;
-            }
-
-            return lstMovies;
+            var search = new Kinopoisk.FilmSeach();
+            return search.Find(title, year).Select(Utils.SerializeObject).ToList();
         }
 
         #endregion
@@ -170,41 +111,20 @@ namespace FetcherTemplate
         ///     meta data fetches (all)
         /// </summary>
         /// <returns>A serialized MCM_Common.MovieInfo object (cannot be null)</returns>
-        public static string FetchByIDs(string sLocalID, string sExternalID)
+        public static string FetchByIDs(string localId, string externalId)
         {
-            MovieInfo movie = new MovieInfo();
-
-            try
+            if (!string.IsNullOrEmpty(localId))
             {
-                var filmInfo = new Kinopoisk.FilmPage(sLocalID);
-
-                // This is a private function that will get a list of cast and crew as well as
-                // download thumbnails, if the user so chooses (per AppSetting).
-                // todo: Implement it later.
-                movie.AllCastAndCrew = ProcessCastAndCrew(sLocalID);
-
-                movie.TMDB_ID = sLocalID;
-                movie.AllGenres = filmInfo.GetGenreList().ToArray();
-                movie.Budget = filmInfo.Budget;
-                movie.MPAArating = filmInfo.MPAA;
-                movie.Revenue = filmInfo.Revenue;
-                movie.Runtime = filmInfo.Runtime;
-                movie.Summary = Utils.UnHTML(filmInfo.Summary);
-                movie.IMDBscore = filmInfo.IMDBScore;
-                movie.Year = Utils.SafeYear(filmInfo.Year);
-                movie.Title = filmInfo.Title;
-                if (filmInfo.Backdrop != null) movie.Backdrop = Utils.SerializeBitmap( Utils.LoadPictureFromURI(filmInfo.Backdrop) );
-                if (filmInfo.Poster != null) movie.Poster = Utils.SerializeBitmap( Utils.LoadPictureFromURI(filmInfo.Poster) );
-                
-                //movie.IMDB_ID = Utils.ChopperBlank(sMoviePageContents, "<imdb>", "</imdb>");
-                //movie.Studios  // not supported by tMDB API 2.0
+                try
+                {
+                    return Utils.SerializeObject(FetchFilm(uint.Parse(localId), FetchOptions.FetchImages));
+                }
+                catch (Exception ex)
+                {
+                    Utils.Logger(Utils.GetAllErrorDetails(ex));
+                }   
             }
-            catch (Exception ex)
-            {
-                Utils.Logger(Utils.GetAllErrorDetails(ex));
-            }
-
-            return Utils.SerializeObject(movie);
+            return null;
         }
 
         /// <summary>
@@ -219,92 +139,63 @@ namespace FetcherTemplate
         ///     meta data fetches (all)
         /// </summary>
         /// <returns>A serialized MCM_Common.MovieInfo object (cannot be null)</returns>
-        public static string FetchByIDsNoImages(string sLocalID, string sExternalID)
+        public static string FetchByIDsNoImages(string localId, string externalId)
         {
-            MovieInfo movie = new MovieInfo();
-
-            if ((Utils.CInt(sLocalID) < 1) && (!string.IsNullOrEmpty(sExternalID)))
+            if (!string.IsNullOrEmpty(localId))
             {
-                List<MovieResult> lstMovies = new List<MovieResult>();
-
                 try
                 {
-                    string sContents = Utils.PageFetch("http://api.themoviedb.org/2.0/Movie.imdbLookup?imdb_id=" + sExternalID.Replace("/", "") + "&api_key=" + API_Key);
-
-                    if (sContents == "[timeout]")
-                    {
-                        Utils.Logger(Tag + "<color=#B00000><u><b>it appears that themoviedb.org is offline</b></u></color>");
-                        return Utils.SerializeObject(movie);
-                    }
-
-                    if (sContents.StartsWith("[exception: "))
-                    {
-                        Utils.Logger(Tag + "<color=#B00000><u><b>themoviedb.org is online, but experiencing technical difficulties</b></u></color>");
-                        return Utils.SerializeObject(movie);
-                    }
-
-                    if (sContents.Contains("Your query didn't return any results"))
-                    {
-                        Utils.Logger(Tag + "<color=#B00000><u>no results (by title)</u></color>");
-                        return Utils.SerializeObject(movie);
-                    }
-
-                    string[] sResults = Utils.SubStrings(Utils.Chopper(sContents, "<moviematches>", "</moviematches>"), "<movie>");
-
-                    foreach (string sMovie in sResults)
-                    {
-                        if (sMovie.Contains("</id>"))
-                        {
-                            string confirm_movie_Title = Utils.Chopper(sMovie, "<title>", "</title>");
-                            string confirm_movie_Year = Utils.Chopper(sMovie, "<release>", "</release>");
-                            string confirm_movie_IDs = Utils.ChopperBlank(sMovie, "<id>", "</id>");
-
-                            Utils.Logger(Tag + "Found #" + confirm_movie_IDs + ", \"" + confirm_movie_Title + "\" (" + confirm_movie_Year + ")");
-                            lstMovies.Add(new MovieResult() { ID = confirm_movie_IDs, Title = confirm_movie_Title, Year = confirm_movie_Year });
-                        }
-                    }
+                    return Utils.SerializeObject(FetchFilm(uint.Parse(localId)));
                 }
-                catch { }
-
-                if (lstMovies.Count < 1)
-                    return Utils.SerializeObject(movie);
-
-                sLocalID = lstMovies[0].ID;
-            }
-
-            try
-            {
-                string sMoviePageContents = Utils.PageFetch("http://api.themoviedb.org/2.0/Movie.getInfo?id=" + sLocalID + "&api_key=" + API_Key);
-
-                movie.AllCastAndCrew = ProcessCastAndCrew(sLocalID);
-
-                try
+                catch (Exception ex)
                 {
-                    string sTMDB_Genre_List = "";
-                    string s = Utils.Chopper(sMoviePageContents, "<categories>", "</categories>");
-                    foreach (string s2 in Utils.SubStrings(s, "<category>"))
-                        if (s2.Contains("<name>"))
-                            sTMDB_Genre_List += Utils.Chopper(s2, "<name>", "</name>") + "|";
-                    sTMDB_Genre_List = sTMDB_Genre_List.Trim();
-                    movie.AllGenres = Utils.SubStrings(sTMDB_Genre_List, "|");
+                    Utils.Logger(Utils.GetAllErrorDetails(ex));
                 }
-                catch { }
-
-                movie.Budget = Utils.ChopperBlank(sMoviePageContents, "<budget>", "</budget>");
-                movie.IMDB_ID = Utils.ChopperBlank(sMoviePageContents, "<imdb>", "</imdb>");
-                movie.IMDBscore = Utils.ChopperBlank(sMoviePageContents, "<rating>", "</rating>");
-                //movie.MPAArating  // not supported by tMDB API 2.0
-                movie.Revenue = Utils.ChopperBlank(sMoviePageContents, "<revenue>", "</revenue>");
-                movie.Runtime = Utils.ChopperBlank(sMoviePageContents, "<runtime>", "</runtime>");
-                //movie.Studios  // not supported by tMDB API 2.0
-                movie.Summary = Utils.UnHTML(Utils.ChopperBlank(sMoviePageContents, "<short_overview>", "</short_overview>"));
-                movie.Title = Utils.UnHTML(Utils.ChopperBlank(sMoviePageContents, "<title>", "</title>"));
-                movie.TMDB_ID = sLocalID;
-                movie.Year = Utils.SafeYear(Utils.ChopperBlank(sMoviePageContents, "<release>", "</release>"));
             }
-            catch { }
+            return null;
+        }
 
-            return Utils.SerializeObject(movie);
+        [Flags]
+        public enum FetchOptions
+        {
+            None = 0,
+            FetchImages = 1
+        }
+
+        protected static MovieInfo FetchFilm(uint filmId, FetchOptions options = FetchOptions.None)
+        {
+            var movie = new MovieInfo();
+            var filmInfo = new Kinopoisk.FilmPage(filmId);
+
+            // This is a private function that will get a list of cast and crew as well as
+            // download thumbnails, if the user so chooses (per AppSetting).
+            // todo: Implement it later.
+            //movie.TMDB_ID = filmId.ToString();
+            movie.AllGenres = filmInfo.GetGenreList().ToArray();
+            movie.Budget = filmInfo.Budget;
+            movie.MPAArating = filmInfo.MPAA;
+            movie.Revenue = filmInfo.Revenue;
+            movie.Runtime = filmInfo.Runtime;
+            movie.Summary = Utils.UnHTML(filmInfo.Summary);
+            movie.IMDBscore = filmInfo.IMDBScore;
+            movie.Year = Utils.SafeYear(filmInfo.Year);
+            movie.Local_Title = filmInfo.LocalTitle;
+            movie.Original_Title = filmInfo.Title;
+
+            if ((options & FetchOptions.FetchImages)==FetchOptions.FetchImages)
+            {
+                var link = filmInfo.GetOnlyBackdrop();
+                if (link != null) movie.Backdrop = Utils.SerializeBitmap(Utils.LoadPictureFromURI(link));
+                link = filmInfo.GetOnlyPoster();
+                if (link != null) movie.Poster = Utils.SerializeBitmap(Utils.LoadPictureFromURI(link));
+            }
+                
+            movie.AllCastAndCrew = ProcessCastAndCrew(filmInfo);
+
+            //movie.IMDB_ID = Utils.ChopperBlank(sMoviePageContents, "<imdb>", "</imdb>");
+            //movie.Studios  // not supported by tMDB API 2.0
+
+            return movie;
         }
 
         #endregion
@@ -319,20 +210,12 @@ namespace FetcherTemplate
         ///     meta data fetches (all)
         /// </summary>
         /// <returns>An array of string's (can be empty, but not null)</returns>
-        public static string[] GetAllPosters(string sLocalID, string sExternalID)
+        public static string[] GetAllPosters(string localId, string externalId)
         {
             try
             {
-                string sPosters = string.Empty;
-
-
-                string sMoviePageContents = MCM_Common.Utils.PageFetch("http://api.themoviedb.org/2.0/Movie.getInfo?id=" + sLocalID + "&api_key=" + API_Key);
-
-                foreach (string poster in MCM_Common.Utils.SubStrings(sMoviePageContents, "<poster "))
-                    if (poster.StartsWith("size=\"original"))
-                        sPosters += "|" + MCM_Common.Utils.ChopperBlank(poster, "size=\"original\">", "</poster>");
-
-                return MCM_Common.Utils.SubStrings(sPosters, "|");
+                var filmInfo = new Kinopoisk.FilmPage(localId);
+                return filmInfo.GetPosters().ToArray();
             }
             catch { }
 
@@ -348,19 +231,12 @@ namespace FetcherTemplate
         ///     meta data fetches (all)
         /// </summary>
         /// <returns>An array of string's (can be empty, but not null)</returns>
-        public static string[] GetAllBackdrops(string sLocalID, string sExternalID)
+        public static string[] GetAllBackdrops(string localId, string externalId)
         {
             try
             {
-                string sPosters = string.Empty;
-
-                string sMoviePageContents = MCM_Common.Utils.PageFetch("http://api.themoviedb.org/2.0/Movie.getInfo?id=" + sLocalID + "&api_key=" + API_Key);
-
-                foreach (string poster in MCM_Common.Utils.SubStrings(sMoviePageContents, "<backdrop "))
-                    if (poster.StartsWith("size=\"original"))
-                        sPosters += "|" + MCM_Common.Utils.ChopperBlank(poster, "size=\"original\">", "</backdrop>");
-
-                return MCM_Common.Utils.SubStrings(sPosters, "|");
+                var filmInfo = new Kinopoisk.FilmPage(localId);
+                return filmInfo.GetBackdrops().ToArray();
             }
             catch { }
 
@@ -398,6 +274,7 @@ namespace FetcherTemplate
 
         #region Private methods specific to this plugin
 
+
         /// <summary>
         /// Creates a delimited list of cast and crew.  This version also downloads thumbnails
         /// if the AppSetting is turned on.
@@ -415,78 +292,20 @@ namespace FetcherTemplate
         ///     none (private/utility)
         /// </summary>
         /// <returns>A specially-formatted list of cast and crew</returns>
-        private static string ProcessCastAndCrew(string sID)
+        private static string ProcessCastAndCrew(Kinopoisk.FilmPage film)
         {
-            string sCastAndCrewPage = Utils.PageFetch("http://www.themoviedb.org/movie/" + sID + "/cast");
+            var crew = film.GetCrew();
+            
+            if (Utils.GetAppSetting("DownloadCastThumbs") != "False")
+                crew.ForEach(AddOrUpdatePerson);
+            
+            return string.Join("|",
+                               (from p in crew
+                                select String.Join("*", new string[] { p.LocalName, p.Type, p.Role })).
+                                   ToArray());
 
-            if (sCastAndCrewPage != string.Empty)
-            {
-                string sTMDB_People_List = string.Empty;
-                foreach (string s in Utils.SubStrings(sCastAndCrewPage, "<div class=\"person\">"))
-                {
-                    if (s.Contains("/edit_character'") || s.Contains("/remove_character'"))
-                    {
-                        sTMDB_People_List += Utils.ChopperBlank(s, "title=\"Person: ", "\"").Trim() + "*";
-                        sTMDB_People_List += "actor*";
-                        if (s.Contains("title=\"Character: "))
-                            sTMDB_People_List += Utils.ChopperBlank(s, "title=\"Character: ", "\">").Trim() + "|";
-                        else
-                            sTMDB_People_List += Utils.ChopperBlank(s, "{}; return false;\">", "</a>").Trim() + "|";
-                        if (Utils.GetAppSetting("DownloadCastThumbs") != "False")
-                            if (Utils.ChopperBlank(s, "title=\"Person: ", "\"").Trim().Contains("<") == false)
-                                AddOrUpdatePerson(Utils.ChopperBlank(s, "title=\"Person: ", "\"").Trim(), Utils.ChopperBlank(s, "<a href=\"/person/", "\""));
-                    }
-                }
-                sTMDB_People_List = sTMDB_People_List.Trim();
-                foreach (string s in Utils.SubStrings(sCastAndCrewPage, "<div class=\"person\">"))
-                {
-                    if ((s.Contains("/edit_character'") == false) && (s.Contains("/remove_character'") == false))
-                    {
-                        sTMDB_People_List += Utils.ChopperBlank(s, "title=\"Person: ", "\"").Trim() + "*";
-                        string sJob = Utils.ChopperBlank(s, "title=\"Job: ", "\"").ToLower().Replace("customer", "costume design").Trim();
-                        if (sJob == string.Empty)
-                            if (s.Contains("catch (e) {}; return false;"))
-                                sJob = Utils.ChopperBlank(s, "of this cast\">", "</a>").ToLower().Replace("customer", "costume design").Trim();
-                        sTMDB_People_List += sJob + "*|";
-                        if (Utils.GetAppSetting("DownloadCrewThumbs") != "False")
-                            if (Utils.ChopperBlank(s, "title=\"Person: ", "\"").Trim().Length > 0)
-                                if (Utils.ChopperBlank(s, "title=\"Person: ", "\"").Trim().Contains("<") == false)
-                                    AddOrUpdatePerson(Utils.ChopperBlank(s, "title=\"Person: ", "\"").Trim(), Utils.ChopperBlank(s, "<a href=\"/person/", "\""));
-                    }
-                }
-
-                return sTMDB_People_List.Trim();
-            }
-
-            return string.Empty;
         }
-
-        /// <summary>
-        /// Finds the URL to the thumbnail of a given person, if one exists.
-        /// 
-        /// Required for:
-        ///     none (private/utility)
-        /// </summary>
-        /// <returns>A URL</returns>
-        private static string GetPictureURLForPerson(string sPersonID)
-        {
-            try
-            {
-                string sPersonPage = Utils.PageFetch("http://www.themoviedb.org/person/" + sPersonID);
-                if (sPersonPage.Contains("<img id=\"left_image\" src=\"http:"))
-                    return Utils.ChopperBlank(sPersonPage, "<img id=\"left_image\" src=\"", "\"");
-                if (sPersonPage.Contains("<img alt=\"\" id=\"left_image\" src=\"http:"))
-                    return Utils.ChopperBlank(sPersonPage, "<img alt=\"\" id=\"left_image\" src=\"", "\"");
-                if (sPersonPage.Contains("<img id=\"left_image\" src=\""))
-                    return "http://www.themoviedb.org" + Utils.ChopperBlank(sPersonPage, "<img id=\"left_image\" src=\"", "\"");
-                if (sPersonPage.Contains("<img alt=\"\" id=\"left_image\" src=\""))
-                    return "http://www.themoviedb.org" + Utils.ChopperBlank(sPersonPage, "<img alt=\"\" id=\"left_image\" src=\"", "\"");
-            }
-            catch { }
-
-            return string.Empty;
-        }
-
+        
         /// <summary>
         /// Downloads the actual thumbnail for the requested person if all of the appropriate
         /// settings are configured correctly, creating subfolders when required.
@@ -494,58 +313,57 @@ namespace FetcherTemplate
         /// Required for:
         ///     none (private/utility)
         /// </summary>
-        private static void AddOrUpdatePerson(string sName, string sPersonID)
+        private static void AddOrUpdatePerson(Kinopoisk.Person person)
         {
-            string sProgramDataFolder = string.Empty;
-            string sPathToUse = string.Empty;
+            var programDataFolder = Utils.ProgramDataFolder.Trim();
+            var pathToUse = string.Empty;
+            var name = person.RealName;
 
             if (Utils.GetAppSetting("ThumbnailLocation") != "")
                 if (System.IO.Directory.Exists(Utils.GetAppSetting("ThumbnailLocation")))
-                    sPathToUse = Utils.GetAppSetting("ThumbnailLocation");
-
-            sProgramDataFolder = Utils.ProgramDataFolder.Trim();
+                    pathToUse = Utils.GetAppSetting("ThumbnailLocation");
 
 
             // Check for existence of the %ProgramData% folder
             try
             {
-                if (sPathToUse == string.Empty)
+                if (pathToUse == string.Empty)
                 {
-                    if (sProgramDataFolder.Length > 0)
+                    if (programDataFolder.Length > 0)
                     {
-                        if (System.IO.Directory.Exists(sProgramDataFolder))
+                        if (System.IO.Directory.Exists(programDataFolder))
                         {
                             // Create the %ProgramData%\MediaBrowser folder if it doesn't exist
-                            if (System.IO.Directory.Exists(sProgramDataFolder + "\\MediaBrowser") == false)
-                                System.IO.Directory.CreateDirectory(sProgramDataFolder + "\\MediaBrowser");
+                            if (System.IO.Directory.Exists(programDataFolder + "\\MediaBrowser") == false)
+                                System.IO.Directory.CreateDirectory(programDataFolder + "\\MediaBrowser");
 
                             // Create the %ProgramData%\MediaBrowser\ImagesByName folder if it doesn't exist
-                            if (System.IO.Directory.Exists(sProgramDataFolder + "\\MediaBrowser\\ImagesByName") == false)
-                                System.IO.Directory.CreateDirectory(sProgramDataFolder + "\\MediaBrowser\\ImagesByName");
+                            if (System.IO.Directory.Exists(programDataFolder + "\\MediaBrowser\\ImagesByName") == false)
+                                System.IO.Directory.CreateDirectory(programDataFolder + "\\MediaBrowser\\ImagesByName");
 
                             // Create the %ProgramData%\MediaBrowser\ImagesByName folder if it doesn't exist
-                            if (System.IO.Directory.Exists(sProgramDataFolder + "\\MediaBrowser\\ImagesByName\\People") == false)
-                                System.IO.Directory.CreateDirectory(sProgramDataFolder + "\\MediaBrowser\\ImagesByName\\People");
+                            if (System.IO.Directory.Exists(programDataFolder + "\\MediaBrowser\\ImagesByName\\People") == false)
+                                System.IO.Directory.CreateDirectory(programDataFolder + "\\MediaBrowser\\ImagesByName\\People");
 
                             // Create the %ProgramData%\MediaBrowser\ImagesByName\<name> folder if it doesn't exist
-                            if (System.IO.Directory.Exists(sProgramDataFolder + "\\MediaBrowser\\ImagesByName\\People\\" + sName.Trim()) == false)
-                                System.IO.Directory.CreateDirectory(sProgramDataFolder + "\\MediaBrowser\\ImagesByName\\People\\" + sName.Trim());
+                            if (System.IO.Directory.Exists(programDataFolder + "\\MediaBrowser\\ImagesByName\\People\\" + name) == false)
+                                System.IO.Directory.CreateDirectory(programDataFolder + "\\MediaBrowser\\ImagesByName\\People\\" + name);
 
                             try
                             {
-                                if ((System.IO.File.Exists(sProgramDataFolder + "\\MediaBrowser\\ImagesByName\\People\\" + sName.Trim() + "\\folder.jpg") == false)
-                                    && (System.IO.File.Exists(sProgramDataFolder + "\\MediaBrowser\\ImagesByName\\People\\" + sName.Trim() + "\\folder.png") == false))
+                                if ((System.IO.File.Exists(programDataFolder + "\\MediaBrowser\\ImagesByName\\People\\" + name + "\\folder.jpg") == false)
+                                    && (System.IO.File.Exists(programDataFolder + "\\MediaBrowser\\ImagesByName\\People\\" + name + "\\folder.png") == false))
                                 {
-                                    Utils.Logger(Tag + "fetching cast/crew \"" + sName + "\"");
-                                    string sImageURL = GetPictureURLForPerson(sPersonID);
-                                    if (sImageURL != "")
+                                    Utils.Logger(Tag + "fetching cast/crew \"" + name + "\"");
+                                    string imageUrl = person.Thumb;
+                                    if (imageUrl != "")
                                     {
-                                        System.Net.WebClient wc = new System.Net.WebClient();
-                                        wc.DownloadFile(sImageURL, sProgramDataFolder + "\\MediaBrowser\\ImagesByName\\People\\" + sName.Trim() + "\\folder.jpg");
+                                        var wc = new System.Net.WebClient();
+                                        wc.DownloadFile(imageUrl, programDataFolder + "\\MediaBrowser\\ImagesByName\\People\\" + name.Trim() + "\\folder.jpg");
                                     }
                                 }
                             }
-                            catch (Exception ex) { Utils.Logger("<color=#ff0000>Exception/#1: " + ex.GetType().ToString() + "\r\n" + ex.Message + "</color>"); }
+                            catch (Exception ex) { Utils.Logger("<color=#ff0000>Exception/#1: " + ex.GetType() + "\r\n" + ex.Message + "</color>"); }
                         }
                     }
                 }
@@ -554,25 +372,25 @@ namespace FetcherTemplate
                     try
                     {
                         // Create the [sPathToUse]\<name> folder if it doesn't exist
-                        if (System.IO.Directory.Exists(sPathToUse + "\\" + sName.Trim()) == false)
-                            System.IO.Directory.CreateDirectory(sPathToUse + "\\" + sName.Trim());
+                        if (System.IO.Directory.Exists(pathToUse + "\\" + name.Trim()) == false)
+                            System.IO.Directory.CreateDirectory(pathToUse + "\\" + name.Trim());
 
-                        if ((System.IO.File.Exists(sPathToUse + "\\" + sName.Trim() + "\\folder.jpg") == false)
-                            && (System.IO.File.Exists(sPathToUse + "\\" + sName.Trim() + "\\folder.png") == false))
+                        if ((System.IO.File.Exists(pathToUse + "\\" + name.Trim() + "\\folder.jpg") == false)
+                            && (System.IO.File.Exists(pathToUse + "\\" + name.Trim() + "\\folder.png") == false))
                         {
-                            Utils.Logger(Tag + "fetching cast/crew \"" + sName + "\"");
-                            string sImageURL = GetPictureURLForPerson(sPersonID);
-                            if (sImageURL != "")
+                            Utils.Logger(Tag + "fetching cast/crew \"" + name + "\"");
+                            string imageUrl = person.Thumb;
+                            if (imageUrl != "")
                             {
                                 System.Net.WebClient wc = new System.Net.WebClient();
-                                wc.DownloadFile(sImageURL, sPathToUse + "\\" + sName.Trim() + "\\folder.jpg");
+                                wc.DownloadFile(imageUrl, pathToUse + "\\" + name.Trim() + "\\folder.jpg");
                             }
                         }
                     }
-                    catch (Exception ex) { Utils.Logger("<color=#ff0000>Exception/#2: " + ex.GetType().ToString() + "\r\n" + ex.Message + "</color>"); }
+                    catch (Exception ex) { Utils.Logger("<color=#ff0000>Exception/#2: " + ex.GetType() + "\r\n" + ex.Message + "</color>"); }
                 }
             }
-            catch (Exception ex) { Utils.Logger("<color=#ff0000>Exception/#3: " + ex.GetType().ToString() + "\r\n" + ex.Message + "</color>"); }
+            catch (Exception ex) { Utils.Logger("<color=#ff0000>Exception/#3: " + ex.GetType() + "\r\n" + ex.Message + "</color>"); }
         }
 
         #endregion

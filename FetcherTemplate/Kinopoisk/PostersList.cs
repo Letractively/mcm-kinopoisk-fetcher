@@ -59,5 +59,19 @@ namespace FetcherTemplate.Kinopoisk
             return null;
         }
 
+        public List<string> GetAllPostersImageLinks()
+        {
+            var links = GetPostersLinks();
+            var posters = new List<string>();
+            foreach (var link in links)
+            {
+                var sMoviePageContents = Utils.PageFetch(link);
+                var document = new HtmlAgilityPack.HtmlDocument();
+                document.LoadHtml(sMoviePageContents);
+                posters.Add(document.DocumentNode.QuerySelector("img#image").Attributes["src"].Value);
+            }
+            return posters;
+        }
+
     }
 }

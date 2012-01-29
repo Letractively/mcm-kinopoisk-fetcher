@@ -40,7 +40,7 @@ namespace FetcherTemplate.Kinopoisk
         public List<string> GetBackdropsLinks()
         {
             var items = Document.QuerySelectorAll("table.fotos td u>a:first-child");
-            return items.Select(item => "htp://http://www.kinopoisk.ru" + item.Attributes["href"]).ToList();
+            return items.Select(item => "http://www.kinopoisk.ru" + item.Attributes["href"].Value).ToList();
         }
 
         public string GetBackdropImageLink()
@@ -54,6 +54,20 @@ namespace FetcherTemplate.Kinopoisk
                 return document.DocumentNode.QuerySelector("img#image").Attributes["src"].Value;
             }
             return null;
+        }
+
+        public List<string> GetAllBackdropsLinks()
+        {
+            var links = GetBackdropsLinks();
+            var backdrops = new List<string>();
+            foreach (var link in links)
+            {
+                string sMoviePageContents = Utils.PageFetch(link);
+                var document = new HtmlAgilityPack.HtmlDocument();
+                document.LoadHtml(sMoviePageContents);
+                backdrops.Add(document.DocumentNode.QuerySelector("img#image").Attributes["src"].Value);
+            }
+            return backdrops;
         }
     }
 }
