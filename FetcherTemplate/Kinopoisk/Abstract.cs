@@ -1,16 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Text;
 
 namespace FetcherTemplate.Kinopoisk
 {
     class Abstract
     {
-        protected const string Tag = "<color=#87A418><backcolor=#1A1A1A><b>kinopoisk.ru:</b></backcolor></color>  ";
-
         public const string SiteName = "kinopoisk.ru";
 
         protected Helpers.CookieProvider Cookies = new Helpers.CookieProvider();
@@ -56,8 +51,7 @@ namespace FetcherTemplate.Kinopoisk
             }
             catch (Exception ex)
             {
-                throw new FetchException(string.Format("{0} is online, but experiencing technical difficulties", SiteName), ex);
-                //Logger("MCM_Common.Utils.PageFetch() exception:\r\n" + ex.Message + "\r\nAt URL: " + sURL);
+                throw new FetchException(string.Format("{0} is online, but experiencing technical difficulties at {1}", SiteName, url), ex);
             }
 
             return content;

@@ -42,7 +42,7 @@ namespace FetcherTemplate.Kinopoisk
         public List<string> GetPostersLinks()
         {
             var items = Document.QuerySelectorAll("table.fotos td a");
-            return items.Select(item => "htp://http://www.kinopoisk.ru" + item.Attributes["href"]).ToList();
+            return items.Select(item => "http://www.kinopoisk.ru" + item.Attributes["href"].Value).ToList();
         }
 
         public string GetPosterImageLink()

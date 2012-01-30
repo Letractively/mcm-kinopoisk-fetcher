@@ -10,7 +10,6 @@ namespace FetcherTemplate.Kinopoisk
 {
     class FilmSeach:Abstract
     {
-
         public List<MovieResult> Find(string title, string year)
         {
             var lstMovies = new List<MovieResult>();
@@ -18,7 +17,7 @@ namespace FetcherTemplate.Kinopoisk
             title = Utils.FixTitleForSearching(title); // fix wrnog symbols
             var pattern = new Regex(@"\s+");
             title = string.Join("+", pattern.Split(title));
-            if (string.IsNullOrEmpty(year)) title += "+" + year;
+            if (!string.IsNullOrEmpty(year)) title += "+" + year;
             string contents = PageFetch("http://www.kinopoisk.ru/level/7/type/film/list/1/find/" + System.Uri.EscapeUriString(title));
 
             var html = new HtmlAgilityPack.HtmlDocument();
@@ -27,12 +26,13 @@ namespace FetcherTemplate.Kinopoisk
             HtmlAgilityPack.HtmlNode document = html.DocumentNode;
             IEnumerable<HtmlAgilityPack.HtmlNode> films = document.QuerySelectorAll("body div.search_results div.info");
 
-            Regex idPattern = new Regex(@"\/film\/(\d+)\/");
-
+            var idPattern = new Regex(@"\/film\/(\d+)\/");
+            var titlePattern = new Regex("[А-Яа-я]+");
 
             foreach (HtmlAgilityPack.HtmlNode filmHeader in films)
             {
-                string confirmMovieTitle = GetFilmTitle(filmHeader);
+                // define whether film title is local
+                string confirmMovieTitle = titlePattern.Match(title).Success ? GetLocalFilmTitle(filmHeader) : GetGlobalFilmTitle(filmHeader);
                 string confirmMovieYear = filmHeader.QuerySelector("p.name span.year").InnerText;
 
                 string confirmMovieIDs = null;
@@ -45,14 +45,18 @@ namespace FetcherTemplate.Kinopoisk
 
                 if (confirmMovieYear == year && !string.IsNullOrEmpty(confirmMovieIDs))
                 {
-                    Utils.Logger(Tag + "Found #" + confirmMovieIDs + ", \"" + confirmMovieTitle + "\" (" + confirmMovieYear + ")");
                     lstMovies.Add(new MovieResult() { ID = confirmMovieIDs, Title = confirmMovieTitle, Year = confirmMovieYear });
                 }
             }
             return lstMovies;
         }
 
-        protected string GetFilmTitle(HtmlAgilityPack.HtmlNode info)
+        protected string GetLocalFilmTitle(HtmlAgilityPack.HtmlNode info)
+        {
+            return info.QuerySelector("a").InnerText;
+        }
+
+        protected string GetGlobalFilmTitle(HtmlAgilityPack.HtmlNode info)
         {
             var globalFilmTitle = info.QuerySelector("span.gray").InnerText;
             var filmTitleParts = globalFilmTitle.Split(',');
@@ -60,7 +64,7 @@ namespace FetcherTemplate.Kinopoisk
             {
                 return filmTitleParts[0].Trim();
             }
-            return info.QuerySelector("a").InnerText;
+            return GetLocalFilmTitle(info);
         }
 
     }

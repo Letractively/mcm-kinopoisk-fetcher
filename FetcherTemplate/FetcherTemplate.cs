@@ -96,11 +96,23 @@ namespace FetcherTemplate
             var movies = new List<string>();
             try
             {
-                movies = search.Find(title, year).Select(Utils.SerializeObject).ToList();
+                var found = search.Find(title, year);
+                if (found.Count > 0)
+                    found.ForEach(f => Utils.Logger(Tag + "Found #" + f.ID + ", \"" + f.Title + "\" (" + f.Year + ")"));
+                movies = found.Select(Utils.SerializeObject).ToList();
+
+
             }
             catch(Kinopoisk.FetchException ex)
             {
                 Utils.Logger(String.Format(Tag + "<color=#B00000><u><b>{0}</b></u></color>", ex.Message));
+                if (ex.InnerException != null)
+                {
+                    Utils.Logger("MCM_Common.Utils.PageFetch() exception:\r\n" + ex.Message);
+                    //Utils.Logger(Utils.GetAllErrorDetails(ex.InnerException));
+                }
+                    
+                
             }
             catch (Exception ex)
             {

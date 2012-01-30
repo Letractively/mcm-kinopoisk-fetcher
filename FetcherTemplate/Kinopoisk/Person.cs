@@ -17,6 +17,7 @@ namespace FetcherTemplate.Kinopoisk
             _type = type;
             _localName = localName;
             _role = role;
+            _realName = realName;
         }
 
         private HtmlAgilityPack.HtmlDocument _document = null;

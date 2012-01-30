@@ -115,6 +115,11 @@ namespace FetcherTemplate.Kinopoisk
         {
             get
             {
+                if (Properties.ContainsKey("сборы в России"))
+                {
+                    // for old films where local revenue is not a link
+                    return ExtTrim(Properties["сборы в России"].Elements().First().InnerText);
+                }
                 var item = Document.QuerySelector("td#div_rus_box_td2 a");
                 return (item != null) ? item.InnerText : null;
             }
@@ -163,18 +168,16 @@ namespace FetcherTemplate.Kinopoisk
             }
         }
 
-        public string LocalTitle
+        public string Title
         {
             get
             {
                 var local = Document.QuerySelector("span[itemprop=\"alternativeHeadline\"]");
-                return ExtTrim(local != null
-                        ? local.InnerText
-                        : Document.QuerySelector("h1[itemprop=\"name\"]").InnerText);
+                return ExtTrim(local != null ? local.InnerText : LocalTitle);
             }
         }
 
-        public string Title
+        public string LocalTitle
         {
             get { return ExtTrim(Document.QuerySelector("h1[itemprop=\"name\"]").InnerText); }
         }
