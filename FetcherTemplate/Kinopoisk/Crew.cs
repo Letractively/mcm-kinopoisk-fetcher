@@ -8,7 +8,7 @@ using MCM_Common;
 
 namespace FetcherTemplate.Kinopoisk
 {
-    class Crew
+    class Crew : Abstract
     {
         protected readonly uint FilmId = 0;
         
@@ -32,7 +32,7 @@ namespace FetcherTemplate.Kinopoisk
             {
                 if (_document == null)
                 {
-                    string sMoviePageContents = Utils.PageFetch(PageAddress);
+                    string sMoviePageContents = PageFetch(PageAddress);
                     _document = new HtmlAgilityPack.HtmlDocument();
                     _document.LoadHtml(sMoviePageContents);
                 }

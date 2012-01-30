@@ -268,61 +268,6 @@ namespace MCM_Common
             return (bmp);
         }
 
-        public static string PageFetch(string sURL)
-        {
-            WebRequest oReq;
-            HttpWebRequest ohReq;
-            string sContent = "";
-
-            try
-            {
-                oReq = WebRequest.Create(sURL);
-                ohReq = (HttpWebRequest)oReq;
-
-                ohReq.Accept = "*/*";
-                ohReq.Referer = sURL;
-                oReq.Headers.Add("Accept-Language: ru-ru,ru;q=0.8,en-us;q=0.5,en;q=0.3");
-                oReq.Headers.Add("Accept-Encoding: plain");
-                oReq.Headers.Add("Accept-Charset: windows-1251,utf-8;q=0.7,*;q=0.7");
-                ohReq.UserAgent = "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; WOW64; Trident/4.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; .NET CLR 1.1.4322)";
-                ohReq.Connection = "false";
-                oReq.Headers.Add("Pragma: no-cache");
-                oReq.Method = "GET";
-                oReq.Timeout = 10000;
-                try
-                {
-                    ohReq.Headers.Add("Host: " + Chopper(sURL, "://", "/"));
-                }
-                catch { }
-                ohReq.MaximumAutomaticRedirections = 3;
-                try
-                {
-                    HttpWebResponse oResp = (HttpWebResponse)oReq.GetResponse();
-                    
-                    string charSet = oResp.CharacterSet;
-                    StreamReader oSRead = new StreamReader(oResp.GetResponseStream(), System.Text.Encoding.GetEncoding(charSet));
-
-                    sContent = oSRead.ReadToEnd();
-
-                } catch (WebException)
-                {
-                    
-                }
-                
-            }
-            catch (TimeoutException)
-            {
-                return "[timeout]";
-            }
-            catch (Exception ex)
-            {
-                //Logger("MCM_Common.Utils.PageFetch() exception:\r\n" + ex.Message + "\r\nAt URL: " + sURL);
-                return "[exception: " + ex.Message + "]";
-            }
-
-            return sContent;
-        }
-
         public static string ProgramDataFolder
         {
             get

@@ -82,8 +82,10 @@
     <Compile Include="Kinopoisk\Abstract.cs" />
     <Compile Include="Kinopoisk\BackdropsList.cs" />
     <Compile Include="Kinopoisk\Crew.cs" />
+    <Compile Include="Kinopoisk\FetchException.cs" />
     <Compile Include="Kinopoisk\FilmPage.cs" />
     <Compile Include="Kinopoisk\FilmSeach.cs" />
+    <Compile Include="Kinopoisk\Helpers\CookieProvider.cs" />
     <Compile Include="Kinopoisk\Person.cs" />
     <Compile Include="Kinopoisk\PostersList.cs" />
     <Compile Include="MCM Common.cs" />

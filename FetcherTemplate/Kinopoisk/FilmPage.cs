@@ -9,7 +9,7 @@ using MCM_Common;
 
 namespace FetcherTemplate.Kinopoisk
 {
-    class FilmPage
+    class FilmPage : Abstract
     {
         protected readonly uint FilmId = 0;
         
@@ -29,7 +29,7 @@ namespace FetcherTemplate.Kinopoisk
 
         public string Load()
         {
-            return DocumentContent ?? (DocumentContent = Utils.PageFetch(PageAddress));
+            return DocumentContent ?? (DocumentContent = PageFetch(PageAddress));
         }
 
 

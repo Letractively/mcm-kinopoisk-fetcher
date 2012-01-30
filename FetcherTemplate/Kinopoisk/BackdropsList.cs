@@ -5,7 +5,7 @@ using MCM_Common;
 
 namespace FetcherTemplate.Kinopoisk
 {
-    class BackdropsList
+    class BackdropsList : Abstract
     {
         protected readonly uint FilmId = 0;
 
@@ -29,7 +29,7 @@ namespace FetcherTemplate.Kinopoisk
             {
                 if (_document == null)
                 {
-                    string sMoviePageContents = Utils.PageFetch(PageAddress);
+                    string sMoviePageContents = PageFetch(PageAddress);
                     _document = new HtmlAgilityPack.HtmlDocument();
                     _document.LoadHtml(sMoviePageContents);
                 }
@@ -48,7 +48,7 @@ namespace FetcherTemplate.Kinopoisk
             var links = GetBackdropsLinks();
             if (links.Count > 0)
             {
-                string sMoviePageContents = Utils.PageFetch(links.First());
+                string sMoviePageContents = PageFetch(links.First());
                 var document = new HtmlAgilityPack.HtmlDocument();
                 document.LoadHtml(sMoviePageContents);
                 return document.DocumentNode.QuerySelector("img#image").Attributes["src"].Value;
@@ -62,7 +62,7 @@ namespace FetcherTemplate.Kinopoisk
             var backdrops = new List<string>();
             foreach (var link in links)
             {
-                string sMoviePageContents = Utils.PageFetch(link);
+                string sMoviePageContents = PageFetch(link);
                 var document = new HtmlAgilityPack.HtmlDocument();
                 document.LoadHtml(sMoviePageContents);
                 backdrops.Add(document.DocumentNode.QuerySelector("img#image").Attributes["src"].Value);

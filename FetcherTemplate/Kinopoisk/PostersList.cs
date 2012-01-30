@@ -7,7 +7,7 @@ using MCM_Common;
 
 namespace FetcherTemplate.Kinopoisk
 {
-    class PostersList
+    class PostersList : Abstract
     {
         protected readonly uint FilmId = 0;
 
@@ -31,7 +31,7 @@ namespace FetcherTemplate.Kinopoisk
             {
                 if (_document == null)
                 {
-                    string sMoviePageContents = Utils.PageFetch(PageAddress);
+                    string sMoviePageContents = PageFetch(PageAddress);
                     _document = new HtmlAgilityPack.HtmlDocument();
                     _document.LoadHtml(sMoviePageContents);
                 }
@@ -51,7 +51,7 @@ namespace FetcherTemplate.Kinopoisk
             if (links.Count > 0)
             {
                 // last poster is usually localized
-                string sMoviePageContents = Utils.PageFetch(links.Last());
+                string sMoviePageContents = PageFetch(links.Last());
                 var document = new HtmlAgilityPack.HtmlDocument();
                 document.LoadHtml(sMoviePageContents);
                 return document.DocumentNode.QuerySelector("img#image").Attributes["src"].Value;
@@ -65,7 +65,7 @@ namespace FetcherTemplate.Kinopoisk
             var posters = new List<string>();
             foreach (var link in links)
             {
-                var sMoviePageContents = Utils.PageFetch(link);
+                var sMoviePageContents = PageFetch(link);
                 var document = new HtmlAgilityPack.HtmlDocument();
                 document.LoadHtml(sMoviePageContents);
                 posters.Add(document.DocumentNode.QuerySelector("img#image").Attributes["src"].Value);

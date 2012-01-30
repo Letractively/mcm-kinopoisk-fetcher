@@ -7,7 +7,7 @@ using MCM_Common;
 
 namespace FetcherTemplate.Kinopoisk
 {
-    class Person
+    class Person:Abstract
     {
         protected string PageAddress = null;
 
@@ -26,7 +26,7 @@ namespace FetcherTemplate.Kinopoisk
             {
                 if (_document == null)
                 {
-                    string sMoviePageContents = Utils.PageFetch(PageAddress);
+                    string sMoviePageContents = PageFetch(PageAddress);
                     _document = new HtmlAgilityPack.HtmlDocument();
                     _document.LoadHtml(sMoviePageContents);
                 }

@@ -93,7 +93,24 @@ namespace FetcherTemplate
         public static List<string> SearchByTitleAndYear(string title, string year)
         {
             var search = new Kinopoisk.FilmSeach();
-            return search.Find(title, year).Select(Utils.SerializeObject).ToList();
+            var movies = new List<string>();
+            try
+            {
+                movies = search.Find(title, year).Select(Utils.SerializeObject).ToList();
+            }
+            catch(Kinopoisk.FetchException ex)
+            {
+                Utils.Logger(String.Format(Tag + "<color=#B00000><u><b>{0}</b></u></color>", ex.Message));
+            }
+            catch (Exception ex)
+            {
+                Utils.Logger(Utils.GetAllErrorDetails(ex));
+            }
+            if (movies.Count == 0)
+            {
+                Utils.Logger(Tag + "<color=#B00000><u>no results (by title)</u></color>");
+            }
+            return movies;
         }
 
         #endregion
