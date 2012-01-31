@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using System.Text.RegularExpressions;
+using MCM_Common;
 
 namespace FetcherTemplate.Kinopoisk
 {
@@ -65,5 +67,16 @@ namespace FetcherTemplate.Kinopoisk
             return url;
         }
 
+        protected string ExtTrim(string value)
+        {
+            return string.IsNullOrEmpty(value) ?
+                    "" :
+                    Regex.Replace(Regex.Replace(value, @"[ \t\n\r\0\x0B]*\z", ""), @"\A[ \t\n\r\0\x0B]*", "");
+        }
+
+        protected string Prepare(string value)
+        {
+            return string.IsNullOrEmpty(value) ? ExtTrim(Utils.UnHTML(value)) : value;
+        }
     }
 }

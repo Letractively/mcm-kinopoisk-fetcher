@@ -67,13 +67,6 @@ namespace FetcherTemplate.Kinopoisk
             
         }
 
-        public string ExtTrim(string value)
-        {
-            return string.IsNullOrEmpty(value) ?
-                    "" :
-                    Regex.Replace(Regex.Replace(value, @"[ \t\n\r\0\x0B]*\z", ""), @"\A[ \t\n\r\0\x0B]*", "");
-        }
-
         public List<string> GetGenreList()
         {
             var genres = new List<string>();
@@ -118,10 +111,10 @@ namespace FetcherTemplate.Kinopoisk
                 if (Properties.ContainsKey("сборы в России"))
                 {
                     // for old films where local revenue is not a link
-                    return ExtTrim(Properties["сборы в России"].Elements().First().InnerText);
+                    return Prepare(Properties["сборы в России"].Elements().First().InnerText);
                 }
                 var item = Document.QuerySelector("td#div_rus_box_td2 a");
-                return (item != null) ? item.InnerText : null;
+                return (item != null) ? Prepare(item.InnerText) : null;
             }
         }
 
@@ -139,7 +132,7 @@ namespace FetcherTemplate.Kinopoisk
             get
             {
                 var item = Document.QuerySelector("div[itemprop=\"description\"]");
-                return item != null ? item.InnerHtml : null;
+                return item != null ? Prepare(item.InnerHtml) : null;
             }
         }
 

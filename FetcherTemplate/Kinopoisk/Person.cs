@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using MCM_Common;
+﻿using System.Text.RegularExpressions;
 
 namespace FetcherTemplate.Kinopoisk
 {
@@ -15,9 +10,9 @@ namespace FetcherTemplate.Kinopoisk
         {
             PageAddress = pageAddress;
             _type = type;
-            _localName = localName;
+            _localName = Prepare(localName);
             _role = role;
-            _realName = realName;
+            _realName = Prepare(realName);
         }
 
         private HtmlAgilityPack.HtmlDocument _document = null;
@@ -50,11 +45,7 @@ namespace FetcherTemplate.Kinopoisk
         {
             get
             {
-                if (_realName == null)
-                {
-                    return "";
-                }
-                return _realName;
+                return _realName ?? "";
             }
         }
 
@@ -63,11 +54,7 @@ namespace FetcherTemplate.Kinopoisk
         {
             get
             {
-                if (_type == null)
-                {
-                    return "";
-                }
-                return _type;
+                return _type ?? "";
             }
         }
 
@@ -76,11 +63,7 @@ namespace FetcherTemplate.Kinopoisk
         {
             get
             {
-                if (_localName == null)
-                {
-                    return "";
-                }
-                return _localName;
+                return _localName ?? "";
             }
         }
 
@@ -89,11 +72,7 @@ namespace FetcherTemplate.Kinopoisk
         {
             get
             {
-                if (_role == null)
-                {
-                    return "";
-                }
-                return _role;
+                return _role ?? "";
             }
         }
 

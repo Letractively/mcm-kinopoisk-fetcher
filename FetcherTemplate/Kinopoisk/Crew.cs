@@ -61,8 +61,7 @@ namespace FetcherTemplate.Kinopoisk
 
                     if (roleDiv != null)
                     {
-                        role = roleDiv.InnerText;
-                        role = role.Replace("&nbsp;", "").Trim();
+                        role = Prepare(roleDiv.InnerText);
                         var rolePattern = new Regex(@"[\. ]*(.+)");
                         var result = rolePattern.Match(role);
                         role = result.Success ? result.Groups[1].Value : null;
