@@ -24,7 +24,7 @@ namespace FetcherTemplate
         #region Custom data specific to this plugin
 
         // Try to match the color scheme used at the website source for your data
-        private const string Tag = "<color=#87A418><backcolor=#1A1A1A><b>kinopoisk.ru:</b></backcolor></color>  ";
+        private const string Tag = "<color=#ff6600><backcolor=#eeeeee><b> kinopoisk.ru: </b></backcolor></color> ";
 
         #endregion
 
@@ -347,6 +347,8 @@ namespace FetcherTemplate
             var programDataFolder = Utils.ProgramDataFolder.Trim();
             var pathToUse = string.Empty;
             var name = person.RealName;
+
+            if (string.IsNullOrEmpty(name)) return;
 
             if (Utils.GetAppSetting("ThumbnailLocation") != "")
                 if (System.IO.Directory.Exists(Utils.GetAppSetting("ThumbnailLocation")))
