@@ -7,6 +7,7 @@ using System.Threading;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Web;
 using System.Xml.Serialization;
 using System.Diagnostics;
 
@@ -20,15 +21,19 @@ namespace MCM_Common
         {
             foreach (System.Windows.Forms.Form form in System.Windows.Forms.Application.OpenForms)
             {
-                if (form.GetType().ToString() == "MediaCenterMaster.frmMain")
-                {
+                //if (form.GetType().ToString() == "MediaCenterMaster.frmMain")
+                //{
                     try
                     {
                         MethodInfo logMethod = form.GetType().GetMethod("TextLog");
-                        logMethod.Invoke(form, new object[] { sText });
+                        if (logMethod != null)
+                        {
+                            logMethod.Invoke(form, new object[] { sText });
+                            return;
+                        }
                     }
                     catch { }
-                }
+                //}
             }
             return;
         }
@@ -427,43 +432,16 @@ namespace MCM_Common
 
         public static string StripYearAndComments(string sText)
         {
-            return System.Text.RegularExpressions.Regex.Replace(sText, @"\((.|\n)*?\)", string.Empty).Trim();
+            return Regex.Replace(sText, @"\((.|\n)*?\)", string.Empty).Trim();
         }
 
         public static string UnHTML(string sIn)
         {
-            sIn = sIn.Replace("&amp;", "&");
-            sIn = sIn.Replace("&apos;", "'");
-            sIn = sIn.Replace("&quot;", "\"");
-            sIn = sIn.Replace("&lt;", "<");
-            sIn = sIn.Replace("&gt;", ">");
-
-            while (sIn.Contains("&#x"))
+            if (!string.IsNullOrEmpty(sIn))
             {
-                int iPos = sIn.IndexOf("&#x");
-                if (sIn.Substring(iPos + 5, 1) != ";")
-                    break;
-                string sCode = sIn.Substring(iPos + 3, 2);
-                byte[] bByteVersion = Utils.HexToBytes(sCode);
-                string sCharToReplaceWith = ((Char)bByteVersion[0]).ToString();
-                sIn = sIn.Replace("&#x" + sCode + ";", sCharToReplaceWith);
+                sIn = HttpUtility.HtmlDecode(sIn);
+                sIn = sIn.Replace("&apos;", "'");    
             }
-
-            while (sIn.Contains("&#"))
-            {
-                string sCode = MCM_Common.Utils.Chopper(sIn, "&#", ";");
-                byte bByteVersion = (Byte)(MCM_Common.Utils.CInt(sCode));
-                string sCharToReplaceWith = ((Char)bByteVersion).ToString();
-                sIn = sIn.Replace("&#" + sCode + ";", sCharToReplaceWith);
-            }
-
-            sIn = sIn.Replace("\"", "");
-            sIn = sIn.Replace("&amp;", "&");
-            sIn = sIn.Replace("&apos;", "'");
-            sIn = sIn.Replace("&quot;", "\"");
-            sIn = sIn.Replace("&lt;", "<");
-            sIn = sIn.Replace("&gt;", ">");
-
             return sIn;
         }
 
@@ -977,6 +955,8 @@ namespace MCM_Common
         {
             return GetAllErrorDetails(e, new System.Collections.Generic.List<object>());
         }
+
+
         public static string GetAllErrorDetails(Exception e, System.Collections.Generic.List<object> oParams)
         {
             String sTXTError = "";
