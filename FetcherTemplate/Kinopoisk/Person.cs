@@ -12,7 +12,8 @@ namespace FetcherTemplate.Kinopoisk
             _type = type;
             _localName = Prepare(localName);
             _role = role;
-            _realName = Prepare(realName);
+            realName = Prepare(realName);
+            _realName = string.IsNullOrEmpty(realName) ? _localName : realName;
         }
 
         private HtmlAgilityPack.HtmlDocument _document = null;

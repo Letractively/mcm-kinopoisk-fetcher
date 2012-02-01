@@ -67,16 +67,21 @@ namespace FetcherTemplate.Kinopoisk
             return url;
         }
 
+        /// <summary>
+        /// \u00A0 - no break space
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         protected string ExtTrim(string value)
         {
             return string.IsNullOrEmpty(value) ?
                     "" :
-                    Regex.Replace(Regex.Replace(value, @"[ \t\n\r\0\x0B]*\z", ""), @"\A[ \t\n\r\0\x0B]*", "");
+                    Regex.Replace(Regex.Replace(value, @"[ \t\n\r\0\x0B\u00A0]+\z", ""), @"\A[ \t\n\r\0\x0B\u00A0]+", "");
         }
 
         protected string Prepare(string value)
         {
-            return string.IsNullOrEmpty(value) ? ExtTrim(Utils.UnHTML(value)) : value;
+            return string.IsNullOrEmpty(value) ? value : ExtTrim(Utils.UnHTML(value));
         }
     }
 }
