@@ -94,6 +94,8 @@ namespace FetcherTemplate
         /// <returns>A list of serialized MCM_Common.MovieResult objects</returns>
         public static List<string> SearchByTitleAndYear(string title, string year)
         {
+            Utils.Logger(Tag + string.Format("SearchByTitleAndYear called with title = \"{0}\", year={1}", title, year));
+
             var search = new Kinopoisk.FilmSeach(title, year);
             var movies = new List<string>();
             try
@@ -145,6 +147,8 @@ namespace FetcherTemplate
         /// <returns>A serialized MCM_Common.MovieInfo object (cannot be null)</returns>
         public static string FetchByIDs(string localId, string externalId)
         {
+            Utils.Logger(Tag + string.Format("FetchByIDs called with localId = \"{0}\", externalId=\"{1}\"", localId, externalId));
+
             if (!string.IsNullOrEmpty(localId))
             {
                 try
@@ -173,6 +177,8 @@ namespace FetcherTemplate
         /// <returns>A serialized MCM_Common.MovieInfo object (cannot be null)</returns>
         public static string FetchByIDsNoImages(string localId, string externalId)
         {
+            Utils.Logger(Tag + string.Format("<b>FetchByIDsNoImages</b> called with localId = \"{0}\", externalId=\"{1}\"", localId, externalId));
+
             if (!string.IsNullOrEmpty(localId))
             {
                 try
@@ -244,12 +250,18 @@ namespace FetcherTemplate
         /// <returns>An array of string's (can be empty, but not null)</returns>
         public static string[] GetAllPosters(string localId, string externalId)
         {
+            Utils.Logger(Tag + string.Format("<b>GetAllPosters</b> called with localId = \"{0}\", externalId=\"{1}\"", localId, externalId));
             try
             {
                 var filmInfo = new Kinopoisk.FilmPage(localId);
-                return filmInfo.GetPosters().ToArray();
+                List<string> posters = filmInfo.GetPosters();
+                Utils.Logger(Tag + string.Format("<b>GetAllPosters</b> returned \"{0}\" results.", localId, posters.Count));
+                return posters.ToArray();
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Utils.Logger(Utils.GetAllErrorDetails(ex));
+            }
 
             return new string[] { "[Error with fetcher]" };
         }
@@ -265,12 +277,19 @@ namespace FetcherTemplate
         /// <returns>An array of string's (can be empty, but not null)</returns>
         public static string[] GetAllBackdrops(string localId, string externalId)
         {
+            Utils.Logger(Tag + string.Format("<b>GetAllBackdrops</b> called with localId = \"{0}\", externalId=\"{1}\"", localId, externalId));
             try
             {
                 var filmInfo = new Kinopoisk.FilmPage(localId);
-                return filmInfo.GetBackdrops().ToArray();
+                List<string> backdrops = filmInfo.GetBackdrops();
+
+                Utils.Logger(Tag + string.Format("<b>GetAllBackdrops</b> returned \"{0}\" results.", localId, backdrops.Count));
+                return backdrops.ToArray();
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Utils.Logger(Utils.GetAllErrorDetails(ex));
+            }
 
             return new string[] { "[Error with fetcher]" };
         }
