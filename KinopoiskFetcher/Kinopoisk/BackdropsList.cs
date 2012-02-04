@@ -3,7 +3,7 @@ using System.Linq;
 using Fizzler.Systems.HtmlAgilityPack;
 using MCM_Common;
 
-namespace FetcherTemplate.Kinopoisk
+namespace KinopoiskFetcher.Kinopoisk
 {
     class BackdropsList : Abstract
     {

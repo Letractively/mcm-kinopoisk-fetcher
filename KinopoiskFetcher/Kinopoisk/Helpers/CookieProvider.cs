@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 
-namespace FetcherTemplate.Kinopoisk.Helpers
+namespace KinopoiskFetcher.Kinopoisk.Helpers
 {
     class CookieProvider
     {

@@ -49,9 +49,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FetcherTemplate\FetcherTemplate.csproj">
+    <ProjectReference Include="..\FetcherTemplate\KinopoiskFetcher.csproj">
       <Project>{23042D82-CA12-403B-B213-F74A05D3D3AE}</Project>
-      <Name>FetcherTemplate</Name>
+      <Name>KinopoiskFetcher</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

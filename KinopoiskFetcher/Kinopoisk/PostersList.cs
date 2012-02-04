@@ -5,7 +5,7 @@ using System.Text;
 using Fizzler.Systems.HtmlAgilityPack;
 using MCM_Common;
 
-namespace FetcherTemplate.Kinopoisk
+namespace KinopoiskFetcher.Kinopoisk
 {
     class PostersList : Abstract
     {

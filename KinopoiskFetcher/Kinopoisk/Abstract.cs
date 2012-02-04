@@ -4,7 +4,7 @@ using System.Net;
 using System.Text.RegularExpressions;
 using MCM_Common;
 
-namespace FetcherTemplate.Kinopoisk
+namespace KinopoiskFetcher.Kinopoisk
 {
     class Abstract
     {

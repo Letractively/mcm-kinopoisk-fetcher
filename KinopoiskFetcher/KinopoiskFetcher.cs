@@ -17,7 +17,7 @@ using MCM_Common;
     [assembly: AssemblyFileVersion("1.0.0.0")]
 #endregion
 
-namespace FetcherTemplate
+namespace KinopoiskFetcher
 {
     public class MCMInterface
     {

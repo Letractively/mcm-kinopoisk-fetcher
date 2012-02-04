@@ -59,14 +59,8 @@
     <Reference Include="Fizzler.Systems.HtmlAgilityPack">
       <HintPath>external\fizzler-0.9-debug\Fizzler.Systems.HtmlAgilityPack.dll</HintPath>
     </Reference>
-    <Reference Include="Fizzler.Systems.XmlNodeQuery">
-      <HintPath>external\fizzler-0.9-debug\Fizzler.Systems.XmlNodeQuery.dll</HintPath>
-    </Reference>
     <Reference Include="HtmlAgilityPack">
       <HintPath>external\fizzler-0.9-debug\HtmlAgilityPack.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.framework">
-      <HintPath>external\fizzler-0.9-debug\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="SgmlReaderDll">
       <HintPath>external\fizzler-0.9-debug\SgmlReaderDll.dll</HintPath>
@@ -81,7 +75,7 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FetcherTemplate.cs" />
+    <Compile Include="KinopoiskFetcher.cs" />
     <Compile Include="Kinopoisk\Abstract.cs" />
     <Compile Include="Kinopoisk\BackdropsList.cs" />
     <Compile Include="Kinopoisk\Crew.cs" />

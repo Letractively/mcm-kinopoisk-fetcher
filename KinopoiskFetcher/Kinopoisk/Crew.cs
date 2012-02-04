@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 using Fizzler.Systems.HtmlAgilityPack;
 using MCM_Common;
 
-namespace FetcherTemplate.Kinopoisk
+namespace KinopoiskFetcher.Kinopoisk
 {
     class Crew : Abstract
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FetcherTemplate.Kinopoisk
+namespace KinopoiskFetcher.Kinopoisk
 {
     class FetchException : Exception
     {

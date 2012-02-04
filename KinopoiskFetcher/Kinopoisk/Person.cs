@@ -2,7 +2,7 @@
 using System.Text.RegularExpressions;
 using Fizzler;
 
-namespace FetcherTemplate.Kinopoisk
+namespace KinopoiskFetcher.Kinopoisk
 {
     class Person:Abstract
     {

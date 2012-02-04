@@ -7,7 +7,7 @@ using Fizzler.Systems.HtmlAgilityPack;
 using HtmlAgilityPack;
 using MCM_Common;
 
-namespace FetcherTemplate.Kinopoisk
+namespace KinopoiskFetcher.Kinopoisk
 {
     class FilmPage : Abstract
     {
