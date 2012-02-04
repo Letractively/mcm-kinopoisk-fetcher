@@ -26,6 +26,8 @@ namespace FetcherTemplate
         // Try to match the color scheme used at the website source for your data
         private const string Tag = "<color=#ff6600><backcolor=#eeeeee><b> kinopoisk.ru: </b></backcolor></color> ";
 
+        private const ushort MaximumNumberOfCrewToLoadImages = 20;
+
         #endregion
 
         #region Public interface for Vitals()
@@ -92,11 +94,12 @@ namespace FetcherTemplate
         /// <returns>A list of serialized MCM_Common.MovieResult objects</returns>
         public static List<string> SearchByTitleAndYear(string title, string year)
         {
-            var search = new Kinopoisk.FilmSeach();
+            var search = new Kinopoisk.FilmSeach(title, year);
             var movies = new List<string>();
             try
             {
-                var found = search.Find(title, year);
+                var found = search.Find();
+                if (found.Count == 0) found = search.Find(false);
                 if (found.Count > 0)
                     found.ForEach(f => Utils.Logger(Tag + "Found #" + f.ID + ", \"" + f.Title + "\" (" + f.Year + ")"));
                 movies = found.Select(Utils.SerializeObject).ToList();
@@ -326,7 +329,7 @@ namespace FetcherTemplate
             var crew = film.GetCrew();
             
             if (Utils.GetAppSetting("DownloadCastThumbs") != "False")
-                crew.ForEach(AddOrUpdatePerson);
+                crew.Take(MaximumNumberOfCrewToLoadImages).ToList().ForEach(AddOrUpdatePerson);
             
             return string.Join("|",
                                (from p in crew
@@ -348,7 +351,7 @@ namespace FetcherTemplate
             var pathToUse = string.Empty;
             var name = person.RealName;
 
-            if (string.IsNullOrEmpty(name)) return;
+            if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(person.Thumb)) return;
 
             if (Utils.GetAppSetting("ThumbnailLocation") != "")
                 if (System.IO.Directory.Exists(Utils.GetAppSetting("ThumbnailLocation")))
