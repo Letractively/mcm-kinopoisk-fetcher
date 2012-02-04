@@ -94,14 +94,18 @@ namespace FetcherTemplate
         /// <returns>A list of serialized MCM_Common.MovieResult objects</returns>
         public static List<string> SearchByTitleAndYear(string title, string year)
         {
-            Utils.Logger(Tag + string.Format("SearchByTitleAndYear called with title = \"{0}\", year={1}", title, year));
+            Utils.Logger(Tag + string.Format("<b>SearchByTitleAndYear</b> called with title = \"{0}\", year={1}", title, year));
 
             var search = new Kinopoisk.FilmSeach(title, year);
             var movies = new List<string>();
             try
             {
                 var found = search.Find();
-                if (found.Count == 0) found = search.Find(false);
+                if (found.Count == 0)
+                {
+                    Utils.Logger(Tag + "<b>SearchByTitleAndYear</b> no direct matches found. Returning all results.");
+                    found = search.Find(false);
+                }
                 if (found.Count > 0)
                     found.ForEach(f => Utils.Logger(Tag + "Found #" + f.ID + ", \"" + f.Title + "\" (" + f.Year + ")"));
                 movies = found.Select(Utils.SerializeObject).ToList();
@@ -147,7 +151,7 @@ namespace FetcherTemplate
         /// <returns>A serialized MCM_Common.MovieInfo object (cannot be null)</returns>
         public static string FetchByIDs(string localId, string externalId)
         {
-            Utils.Logger(Tag + string.Format("FetchByIDs called with localId = \"{0}\", externalId=\"{1}\"", localId, externalId));
+            Utils.Logger(Tag + string.Format("<b>FetchByIDs</b> called with localId = \"{0}\", externalId=\"{1}\"", localId, externalId));
 
             if (!string.IsNullOrEmpty(localId))
             {
