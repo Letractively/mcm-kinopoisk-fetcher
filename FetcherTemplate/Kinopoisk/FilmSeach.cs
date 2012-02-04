@@ -30,7 +30,8 @@ namespace FetcherTemplate.Kinopoisk
                 var pattern = new Regex(@"\s+");
                 title = string.Join("+", pattern.Split(title));
                 if (!string.IsNullOrEmpty(FilmYear)) title += "+" + FilmYear;
-                return "http://www.kinopoisk.ru/level/7/type/film/list/1/find/" + Uri.EscapeUriString(title);    
+                return "http://www.kinopoisk.ru/index.php?first=no&what=&kp_query=" + Uri.EscapeUriString(title);
+                //return "http://www.kinopoisk.ru/level/7/type/film/list/1/find/" + Uri.EscapeUriString(title);
             }
         }
 
@@ -60,8 +61,10 @@ namespace FetcherTemplate.Kinopoisk
             foreach (HtmlAgilityPack.HtmlNode filmHeader in films)
             {
                 MovieResult film = GetMovieResult(filmHeader);
-                if (film != null && film.Year == FilmYear)
+                if (film != null)
                 {
+                    if (string.IsNullOrEmpty(FilmYear)) film.Year = FilmYear;
+                    else if (FilmYear != film.Year) continue;
                     lstMovies.Add(film);
                 }
             }
