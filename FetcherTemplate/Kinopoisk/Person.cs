@@ -1,10 +1,14 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using Fizzler;
 
 namespace FetcherTemplate.Kinopoisk
 {
     class Person:Abstract
     {
         protected string PageAddress = null;
+
+        protected readonly List<string> ShowImageFor = new List<string>(new string[] { "director", "actor" });
 
         public Person(string pageAddress, string realName = null, string localName = null, string type = null, string role = null)
         {
@@ -79,7 +83,11 @@ namespace FetcherTemplate.Kinopoisk
 
         public string Thumb
         {
-            get { return string.Format("http://st.kinopoisk.ru/images/actor/{0}.jpg", Id); }
+            get
+            {
+                // we don't need to load images for whole crew.
+                return ShowImageFor.Contains(Type) ? string.Format("http://st.kinopoisk.ru/images/actor/{0}.jpg", Id) : null;
+            }
         }
 
     }
