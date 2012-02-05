@@ -6,3 +6,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
 [assembly: AssemblyProduct("Media Center Master")]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Tests")]
