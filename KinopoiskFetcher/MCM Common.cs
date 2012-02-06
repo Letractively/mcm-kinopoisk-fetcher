@@ -77,6 +77,27 @@
         public byte[] Poster = null;
         public byte[] Backdrop = null;
         public string[] Backdrops = new string[] { };
+
+        // Added with plugin system version 2.1
+        public string Country = string.Empty;
+        public string Language = string.Empty;
+        public string ParentalRatingSummary = string.Empty;
+
+        // Added with plugin system version 2.2
+        public string PosterURL = string.Empty;
+        public string BackdropURL = string.Empty;
+        public string NumberOfVotes = string.Empty;
+        public string FullMPAA = string.Empty;
+        public string FullCertifications = string.Empty;
+        public string TagLine = string.Empty;
+        public string Outline = string.Empty;
+        public string Plot = string.Empty;
+        public string Top250 = string.Empty;
+        public string Director = string.Empty;
+        public string[] Writers = new string[] { };
+        public string Awards = string.Empty;
+        public string Website = string.Empty;
+        public string Trailer = string.Empty;
     }
 
     [System.Serializable()]
