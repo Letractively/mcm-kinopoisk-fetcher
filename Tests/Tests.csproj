@@ -62,12 +62,8 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AbstractTest.cs" />
-    <Compile Include="BackdropsListTest.cs" />
-    <Compile Include="CrewTest.cs" />
     <Compile Include="FilmPageTest.cs" />
     <Compile Include="FilmSeachTest.cs" />
-    <Compile Include="PersonTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

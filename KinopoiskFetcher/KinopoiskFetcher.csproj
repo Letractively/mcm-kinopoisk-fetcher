@@ -8,8 +8,8 @@
     <ProjectGuid>{23042D82-CA12-403B-B213-F74A05D3D3AE}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>FetcherTemplate</RootNamespace>
-    <AssemblyName>FetcherTemplate</AssemblyName>
+    <RootNamespace>KinopoiskFetcher</RootNamespace>
+    <AssemblyName>KinopoiskFetcher</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
