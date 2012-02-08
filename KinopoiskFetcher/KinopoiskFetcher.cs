@@ -209,10 +209,6 @@ namespace KinopoiskFetcher
             var movie = new MovieInfo();
             var filmInfo = new Kinopoisk.FilmPage(filmId);
 
-            // This is a private function that will get a list of cast and crew as well as
-            // download thumbnails, if the user so chooses (per AppSetting).
-            // todo: Implement it later.
-            //movie.TMDB_ID = filmId.ToString();
             movie.AllGenres = filmInfo.GetGenreList().ToArray();
             movie.Budget = filmInfo.Budget;
             movie.MPAArating = filmInfo.MPAA;
@@ -223,6 +219,34 @@ namespace KinopoiskFetcher
             movie.Year = Utils.SafeYear(filmInfo.Year);
             movie.Local_Title = filmInfo.LocalTitle;
             movie.Original_Title = filmInfo.Title;
+
+            // Added with plugin system version 2.1
+            var countries = filmInfo.GetContries();
+            if (countries.Count() > 0)
+                movie.Country = string.Join(", ", countries);
+            
+            //public string Language = string.Empty;
+            //public string ParentalRatingSummary = string.Empty;
+            
+
+            // Added with plugin system version 2.2
+            movie.TagLine = filmInfo.TagLine;
+            movie.FullMPAA = filmInfo.FullMPAA;
+            movie.PosterURL = filmInfo.GetOnlyPoster();
+            movie.BackdropURL = filmInfo.GetOnlyBackdrop();
+
+            movie.Director = string.Join(", ", filmInfo.GetCrew().Where(p => p.Type == "director").Select(p=>p.LocalName).ToArray());
+            movie.Writers = filmInfo.GetCrew().Where(p => p.Type == "writer").Select(p => p.LocalName).ToArray();
+            movie.NumberOfVotes = filmInfo.Rating.ImdbRating.Votes.ToString();
+
+            //public string FullCertifications = string.Empty;
+            //public string Outline = string.Empty;
+            //public string Plot = string.Empty;
+            //public string Top250 = string.Empty;
+            //public string Awards = string.Empty;
+            //public string Website = string.Empty;
+            //public string Trailer = string.Empty;
+
 
             if ((options & FetchOptions.FetchImages)==FetchOptions.FetchImages)
             {
@@ -267,7 +291,7 @@ namespace KinopoiskFetcher
                 Utils.Logger(Utils.GetAllErrorDetails(ex));
             }
 
-            return new string[] { "[Error with fetcher]" };
+            return new string[]{};
         }
 
         /// <summary>

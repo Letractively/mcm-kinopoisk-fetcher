@@ -79,15 +79,20 @@ namespace KinopoiskFetcher.Kinopoisk
             return genres;
         }
 
+
+        public string TagLine
+        {
+            get
+            {
+                return Properties.ContainsKey("слоган") ? ExtTrim(Properties["слоган"].InnerText) : null;
+            }
+        }
+
         public string Budget
         {
             get
             {
-                if (Properties.ContainsKey("бюджет"))
-                {
-                    return ExtTrim(Properties["бюджет"].InnerText);
-                }
-                return null;
+                return Properties.ContainsKey("бюджет") ? ExtTrim(Properties["бюджет"].InnerText) : null;
             }
         }
 
@@ -99,6 +104,20 @@ namespace KinopoiskFetcher.Kinopoisk
                 {
                     var item = Properties["рейтинг MPAA"].Elements().First();
                     return item.Attributes["href"].Value.Split(new char[] {'/', '\\'}, StringSplitOptions.RemoveEmptyEntries).Last();
+                }
+                return null;
+            }
+        }
+
+
+        public string FullMPAA
+        {
+            get
+            {
+                if (Properties.ContainsKey("рейтинг MPAA"))
+                {
+                    var item = Properties["рейтинг MPAA"].QuerySelector("span");
+                    return Prepare(item.InnerText);
                 }
                 return null;
             }
@@ -140,14 +159,15 @@ namespace KinopoiskFetcher.Kinopoisk
         {
             get
             {
-                var block = Document.QuerySelector("div#block_rating>div[class=\"block_2\"]").Elements().ToArray();
+                /*var block = Document.QuerySelector("div#block_rating>div[class=\"block_2\"]").Elements().ToArray();
                 if (block.Count() >= 2)
                 {
                     var reg = new Regex(@"IMDb: ([0-9\.]+)");
                     var match = reg.Match(block[1].InnerText);
                     if (match.Success) return match.Groups[1].Value;
                 }
-                return null;
+                return null;*/
+                return Rating.ImdbRating.Score.ToString();
             }
         }
 
@@ -173,6 +193,23 @@ namespace KinopoiskFetcher.Kinopoisk
         public string LocalTitle
         {
             get { return ExtTrim(Document.QuerySelector("h1[itemprop=\"name\"]").InnerText); }
+        }
+
+        public string[] GetContries()
+        {
+            string[] contries = null;
+            if (Properties.ContainsKey("страна"))
+            {
+                var nodes = Properties["страна"].QuerySelectorAll("a");
+                contries = nodes.Select(c => c.InnerText).ToArray();
+            }
+            return contries ?? new string[]{};
+        }
+
+        private FilmRating _ratings = null;
+        public FilmRating Rating
+        {
+            get { return _ratings ?? (_ratings = new FilmRating(FilmId)); }
         }
 
 #region Backdrops
