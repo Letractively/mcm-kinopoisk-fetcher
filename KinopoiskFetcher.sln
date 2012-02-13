@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KinopoiskFetcher", "KinopoiskFetcher\KinopoiskFetcher.csproj", "{23042D82-CA12-403B-B213-F74A05D3D3AE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test", "test\test.csproj", "{082C16FD-4920-4889-9869-5ABF254E3E2D}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{7BF92981-E1FA-4F96-AB48-D9F4B987552D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{90FFE75B-CFB4-443F-AC86-0ED5BD5A7F2D}"
@@ -37,16 +35,6 @@ Global
 		{23042D82-CA12-403B-B213-F74A05D3D3AE}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{23042D82-CA12-403B-B213-F74A05D3D3AE}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{23042D82-CA12-403B-B213-F74A05D3D3AE}.Release|x86.ActiveCfg = Release|Any CPU
-		{082C16FD-4920-4889-9869-5ABF254E3E2D}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{082C16FD-4920-4889-9869-5ABF254E3E2D}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{082C16FD-4920-4889-9869-5ABF254E3E2D}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{082C16FD-4920-4889-9869-5ABF254E3E2D}.Debug|x86.ActiveCfg = Debug|x86
-		{082C16FD-4920-4889-9869-5ABF254E3E2D}.Debug|x86.Build.0 = Debug|x86
-		{082C16FD-4920-4889-9869-5ABF254E3E2D}.Release|Any CPU.ActiveCfg = Release|x86
-		{082C16FD-4920-4889-9869-5ABF254E3E2D}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{082C16FD-4920-4889-9869-5ABF254E3E2D}.Release|Mixed Platforms.Build.0 = Release|x86
-		{082C16FD-4920-4889-9869-5ABF254E3E2D}.Release|x86.ActiveCfg = Release|x86
-		{082C16FD-4920-4889-9869-5ABF254E3E2D}.Release|x86.Build.0 = Release|x86
 		{7BF92981-E1FA-4F96-AB48-D9F4B987552D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7BF92981-E1FA-4F96-AB48-D9F4B987552D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7BF92981-E1FA-4F96-AB48-D9F4B987552D}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU

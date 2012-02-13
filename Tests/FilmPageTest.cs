@@ -1,4 +1,5 @@
-﻿using KinopoiskFetcher.Kinopoisk;
+﻿using System.Linq;
+using KinopoiskFetcher.Kinopoisk;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
@@ -78,6 +79,22 @@ namespace Tests
             Assert.AreEqual(target.MPAA, "R");
             Assert.AreEqual(target.Runtime, "102 мин. / 01:42");
             Assert.IsTrue(target.Summary.Length > 10);
+            
+            
+            // Added with plugin system version 2.1
+            CollectionAssert.AreEqual(target.GetContries(), new string[] { "США", "Великобритания" });
+            
+            // Added with plugin system version 2.2
+            Assert.AreEqual(target.TagLine, "«Stealing stones is hazardous.»");
+            Assert.AreEqual(target.FullMPAA, "лицам до 17 лет обязательно присутствие взрослого");
+            Assert.AreEqual(target.GetOnlyPoster(), "http://st.kinopoisk.ru/im/poster/1/4/1/kinopoisk.ru-Snatch-14167.jpg");
+            Assert.AreEqual(target.GetOnlyBackdrop(), "http://st.kinopoisk.ru/im/wallpaper/1/9/7/kinopoisk.ru-Snatch-1971--w--1024.jpg");
+            var director = string.Join(", ", target.GetCrew().Where(p => p.Type == "director").Select(p => p.LocalName).ToArray());
+            Assert.AreEqual(director, "Гай Ричи");
+            var writers = target.GetCrew().Where(p => p.Type == "writer").Select(p => p.LocalName).ToArray();
+            CollectionAssert.AreEqual(writers, new string[] {"Гай Ричи"});
+            Assert.AreEqual(target.Rating.ImdbRating.Votes, (uint)253032);
+            Assert.AreEqual(target.IMDBScore, "8,3");
         }
     }
 }

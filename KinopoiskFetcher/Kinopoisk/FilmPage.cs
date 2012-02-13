@@ -75,7 +75,7 @@ namespace KinopoiskFetcher.Kinopoisk
         {
             get
             {
-                return Properties.ContainsKey("слоган") ? ExtTrim(Properties["слоган"].InnerText) : null;
+                return Properties.ContainsKey("слоган") ? Prepare(Properties["слоган"].InnerText) : null;
             }
         }
 
@@ -83,7 +83,7 @@ namespace KinopoiskFetcher.Kinopoisk
         {
             get
             {
-                return Properties.ContainsKey("бюджет") ? ExtTrim(Properties["бюджет"].InnerText) : null;
+                return Properties.ContainsKey("бюджет") ? Prepare(Properties["бюджет"].InnerText) : null;
             }
         }
 

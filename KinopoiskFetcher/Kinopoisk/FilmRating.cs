@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Globalization;
+using System.Linq;
 using System.Xml.Linq;
 
 namespace KinopoiskFetcher.Kinopoisk
@@ -31,7 +32,9 @@ namespace KinopoiskFetcher.Kinopoisk
                 var xNode = Document.Descendants("kp_rating").Single();
                 if (xNode != null)
                 {
-                    var r = new Rating {Score = double.Parse(xNode.Value)};
+                    const NumberStyles style = NumberStyles.AllowDecimalPoint;
+                    var culture = CultureInfo.CreateSpecificCulture("en-US");
+                    var r = new Rating {Score = double.Parse(xNode.Value, style, culture)};
                     var xAttribute = xNode.Attribute("num_vote");
                     if (xAttribute != null) r.Votes = uint.Parse(xAttribute.Value);
                     return r;
@@ -49,7 +52,9 @@ namespace KinopoiskFetcher.Kinopoisk
                 var xNode = Document.Descendants("imdb_rating").Single();
                 if (xNode != null)
                 {
-                    var r = new Rating {Score = double.Parse(xNode.Value)};
+                    const NumberStyles style = NumberStyles.AllowDecimalPoint;
+                    var culture = CultureInfo.CreateSpecificCulture("en-US");
+                    var r = new Rating {Score = double.Parse(xNode.Value, style, culture)};
                     var xAttribute = xNode.Attribute("num_vote");
                     if (xAttribute != null) r.Votes = uint.Parse(xAttribute.Value);
                     return r;
