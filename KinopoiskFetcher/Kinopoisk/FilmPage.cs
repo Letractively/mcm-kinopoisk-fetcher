@@ -24,15 +24,6 @@ namespace KinopoiskFetcher.Kinopoisk
             }
         }
 
-
-        protected string DocumentContent = null;
-
-        public string Load()
-        {
-            return DocumentContent ?? (DocumentContent = PageFetch(PageAddress));
-        }
-
-
         private HtmlAgilityPack.HtmlDocument _document = null;
         protected HtmlAgilityPack.HtmlNode Document
         {
@@ -41,7 +32,7 @@ namespace KinopoiskFetcher.Kinopoisk
                 if (_document == null)
                 {
                     _document = new HtmlAgilityPack.HtmlDocument();
-                    _document.LoadHtml(Load());
+                    _document.LoadHtml(PageFetch(PageAddress));
                 }
                 return _document.DocumentNode;
             }

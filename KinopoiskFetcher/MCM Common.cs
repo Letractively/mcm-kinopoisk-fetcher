@@ -101,10 +101,27 @@
     }
 
     [System.Serializable()]
-    public class MovieResult
+    public class MovieResult: object
     {
         public string ID = "";
         public string Title = "";
         public string Year = "";
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || GetType() != obj.GetType()) return false;
+            var mr = (MovieResult) obj;
+            return mr.ID == ID && mr.Year == Year && mr.Title.ToLower() == Title.ToLower();
+        }
+
+        public override int GetHashCode()
+        {
+            var result = 0;
+            if (ID != null) result ^= ID.GetHashCode();
+            if (Title != null) result ^= Title.GetHashCode();
+            if (Year != null) result ^= Year.GetHashCode();
+            return result;
+        }
+
     }
 }
