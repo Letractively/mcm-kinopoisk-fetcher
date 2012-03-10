@@ -6,33 +6,22 @@ namespace KinopoiskFetcher.Kinopoisk
 {
     class Person:Abstract
     {
-        protected string PageAddress = null;
+        private readonly string _pageAddress;
+        protected override string PageAddress
+        {
+            get { return _pageAddress; }
+        }
 
         protected readonly List<string> ShowImageFor = new List<string>(new string[] { "director", "actor" });
 
         public Person(string pageAddress, string realName = null, string localName = null, string type = null, string role = null)
         {
-            PageAddress = pageAddress;
+            _pageAddress = pageAddress;
             _type = type;
             _localName = Prepare(localName);
             _role = role;
             realName = Prepare(realName);
             _realName = string.IsNullOrEmpty(realName) ? _localName : realName;
-        }
-
-        private HtmlAgilityPack.HtmlDocument _document = null;
-        protected HtmlAgilityPack.HtmlNode Document
-        {
-            get
-            {
-                if (_document == null)
-                {
-                    string sMoviePageContents = PageFetch(PageAddress);
-                    _document = new HtmlAgilityPack.HtmlDocument();
-                    _document.LoadHtml(sMoviePageContents);
-                }
-                return _document.DocumentNode;
-            }
         }
 
         public uint Id

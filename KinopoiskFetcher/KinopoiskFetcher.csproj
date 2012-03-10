@@ -85,6 +85,7 @@
     <Compile Include="Kinopoisk\FilmRating.cs" />
     <Compile Include="Kinopoisk\FilmSeach.cs" />
     <Compile Include="Kinopoisk\Helpers\CookieProvider.cs" />
+    <Compile Include="Kinopoisk\ImagesListAbstract.cs" />
     <Compile Include="Kinopoisk\Person.cs" />
     <Compile Include="Kinopoisk\PostersList.cs" />
     <Compile Include="Kinopoisk\Rating.cs" />

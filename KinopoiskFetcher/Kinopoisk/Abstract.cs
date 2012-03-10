@@ -6,9 +6,29 @@ using MCM_Common;
 
 namespace KinopoiskFetcher.Kinopoisk
 {
-    class Abstract
+    abstract class Abstract
     {
         public const string SiteName = "kinopoisk.ru";
+
+
+        protected abstract string PageAddress { get; }
+
+
+        private HtmlAgilityPack.HtmlDocument _document = null;
+        protected HtmlAgilityPack.HtmlNode Document
+        {
+            get
+            {
+                if (_document == null)
+                {
+                    string sMoviePageContents = PageFetch(PageAddress);
+                    _document = new HtmlAgilityPack.HtmlDocument();
+                    _document.LoadHtml(sMoviePageContents);
+                }
+                return _document.DocumentNode;
+            }
+        }
+
 
         protected Helpers.CookieProvider Cookies = new Helpers.CookieProvider();
 

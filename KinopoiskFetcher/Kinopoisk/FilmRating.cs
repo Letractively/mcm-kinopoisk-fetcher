@@ -11,7 +11,7 @@ namespace KinopoiskFetcher.Kinopoisk
         public FilmRating(string sFilmId) { FilmId = uint.Parse(sFilmId); }
         public FilmRating(uint filmId) { FilmId = filmId; }
 
-        protected string PageAddress
+        protected override string PageAddress
         {
             get
             {
@@ -20,7 +20,7 @@ namespace KinopoiskFetcher.Kinopoisk
         }
 
         private XDocument _document = null;
-        protected XDocument Document
+        protected new XDocument Document
         {
             get { return _document ?? (_document = XDocument.Parse(PageFetch(PageAddress))); }
         }

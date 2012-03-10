@@ -20,9 +20,7 @@ namespace KinopoiskFetcher.Kinopoisk
             FilmYear = year;
         }
 
-
-        
-        protected string PageAddress
+        protected override string PageAddress
         {
             get
             {
@@ -32,21 +30,6 @@ namespace KinopoiskFetcher.Kinopoisk
                 if (!string.IsNullOrEmpty(FilmYear)) title += "+" + FilmYear;
                 return "http://www.kinopoisk.ru/index.php?first=no&what=&kp_query=" + Uri.EscapeUriString(title);
                 //return "http://www.kinopoisk.ru/level/7/type/film/list/1/find/" + Uri.EscapeUriString(title);
-            }
-        }
-
-        private HtmlAgilityPack.HtmlDocument _document = null;
-        protected HtmlAgilityPack.HtmlNode Document
-        {
-            get
-            {
-                if (_document == null)
-                {
-                    string sMoviePageContents = PageFetch(PageAddress);
-                    _document = new HtmlAgilityPack.HtmlDocument();
-                    _document.LoadHtml(sMoviePageContents);
-                }
-                return _document.DocumentNode;
             }
         }
 

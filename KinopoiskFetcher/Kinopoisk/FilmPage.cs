@@ -16,25 +16,11 @@ namespace KinopoiskFetcher.Kinopoisk
         public FilmPage(string sFilmId) { FilmId = uint.Parse(sFilmId); }
         public FilmPage(uint filmId) { FilmId = filmId; }
 
-        protected string PageAddress
+        protected override string PageAddress
         {
             get
             {
                 return string.Format("http://www.kinopoisk.ru/level/1/film/{0}/", FilmId);
-            }
-        }
-
-        private HtmlAgilityPack.HtmlDocument _document = null;
-        protected HtmlAgilityPack.HtmlNode Document
-        {
-            get
-            {
-                if (_document == null)
-                {
-                    _document = new HtmlAgilityPack.HtmlDocument();
-                    _document.LoadHtml(PageFetch(PageAddress));
-                }
-                return _document.DocumentNode;
             }
         }
 

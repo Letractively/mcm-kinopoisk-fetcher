@@ -5,7 +5,7 @@ using MCM_Common;
 
 namespace KinopoiskFetcher.Kinopoisk
 {
-    class BackdropsList : Abstract
+    class BackdropsList : ImagesListAbstract
     {
         protected readonly uint FilmId = 0;
 
@@ -14,26 +14,11 @@ namespace KinopoiskFetcher.Kinopoisk
             FilmId = uint.Parse(sFilmId);
         }
 
-        protected string PageAddress
+        protected override string PageAddress
         {
             get
             {
                 return string.Format("http://www.kinopoisk.ru/level/12/film/{0}/", FilmId);
-            }
-        }
-
-        private HtmlAgilityPack.HtmlDocument _document = null;
-        protected HtmlAgilityPack.HtmlNode Document
-        {
-            get
-            {
-                if (_document == null)
-                {
-                    string sMoviePageContents = PageFetch(PageAddress);
-                    _document = new HtmlAgilityPack.HtmlDocument();
-                    _document.LoadHtml(sMoviePageContents);
-                }
-                return _document.DocumentNode;
             }
         }
 
@@ -51,7 +36,7 @@ namespace KinopoiskFetcher.Kinopoisk
                 string sMoviePageContents = PageFetch(links.First());
                 var document = new HtmlAgilityPack.HtmlDocument();
                 document.LoadHtml(sMoviePageContents);
-                return document.DocumentNode.QuerySelector("img#image").Attributes["src"].Value;
+                return GetRelativeUrl(document.DocumentNode.QuerySelector("img#image").Attributes["src"].Value);
             }
             return null;
         }
@@ -65,7 +50,7 @@ namespace KinopoiskFetcher.Kinopoisk
                 string sMoviePageContents = PageFetch(link);
                 var document = new HtmlAgilityPack.HtmlDocument();
                 document.LoadHtml(sMoviePageContents);
-                backdrops.Add(document.DocumentNode.QuerySelector("img#image").Attributes["src"].Value);
+                backdrops.Add(GetRelativeUrl(document.DocumentNode.QuerySelector("img#image").Attributes["src"].Value));
             }
             return backdrops;
         }

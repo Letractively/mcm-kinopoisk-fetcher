@@ -9,6 +9,8 @@ namespace KinopoiskFetcher.Kinopoisk
 {
     class PostersList : Abstract
     {
+        const string BasePageAddress = "http://st.kinopoisk.ru";
+
         protected readonly uint FilmId = 0;
 
         public PostersList(string sFilmId)
@@ -16,26 +18,11 @@ namespace KinopoiskFetcher.Kinopoisk
             FilmId = uint.Parse(sFilmId);
         }
 
-        protected string PageAddress
+        protected override string PageAddress
         {
             get
             {
                 return string.Format("http://www.kinopoisk.ru/level/17/film/{0}/", FilmId);
-            }
-        }
-
-        private HtmlAgilityPack.HtmlDocument _document = null;
-        protected HtmlAgilityPack.HtmlNode Document
-        {
-            get
-            {
-                if (_document == null)
-                {
-                    string sMoviePageContents = PageFetch(PageAddress);
-                    _document = new HtmlAgilityPack.HtmlDocument();
-                    _document.LoadHtml(sMoviePageContents);
-                }
-                return _document.DocumentNode;
             }
         }
 
@@ -54,7 +41,8 @@ namespace KinopoiskFetcher.Kinopoisk
                 string sMoviePageContents = PageFetch(links.Last());
                 var document = new HtmlAgilityPack.HtmlDocument();
                 document.LoadHtml(sMoviePageContents);
-                return document.DocumentNode.QuerySelector("img#image").Attributes["src"].Value;
+                return GetRelativeUrl(document.DocumentNode.QuerySelector("img#image").Attributes["src"].Value);
+
             }
             return null;
         }
@@ -68,9 +56,15 @@ namespace KinopoiskFetcher.Kinopoisk
                 var sMoviePageContents = PageFetch(link);
                 var document = new HtmlAgilityPack.HtmlDocument();
                 document.LoadHtml(sMoviePageContents);
-                posters.Add(document.DocumentNode.QuerySelector("img#image").Attributes["src"].Value);
+                posters.Add(GetRelativeUrl(document.DocumentNode.QuerySelector("img#image").Attributes["src"].Value));
             }
             return posters;
+        }
+
+        protected string GetRelativeUrl(string url)
+        {
+            if (url[0] == '/') url = BasePageAddress + url;
+            return url;
         }
 
     }
